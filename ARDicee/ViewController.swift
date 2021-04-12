@@ -40,16 +40,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //
 //        sceneView.scene.rootNode.addChildNode(node)
 //
-//        sceneView.autoenablesDefaultLighting = true
-//
-//        let diceScene = SCNScene(named: "art.scnassets/diceCollada.dae")!
-//        sceneView.scene = diceScene
-//
-//        if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
-//            diceNode.position = SCNVector3(0, 0, -0.3)
-//
-//            sceneView.scene.rootNode.addChildNode(diceNode)
-//        }
+        sceneView.autoenablesDefaultLighting = true
+
+
         
         // Create a new scene
      //   let scene = SCNScene(named: "art.scnassets/ship.scn")!
@@ -103,6 +96,34 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
     }
     
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let location = touch.location(in: sceneView)
+            
+            let results = sceneView.hitTest(location, types: .existingPlaneUsingExtent)
+            if !results.isEmpty {
+                let result = results.first!
+                
+                let diceScene = SCNScene(named: "art.scnassets/diceCollada.dae")!
+                sceneView.scene = diceScene
+
+                if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
+                    diceNode.position = SCNVector3(
+                        result.worldTransform.columns.3.x,
+                        result.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
+                        result.worldTransform.columns.3.z)
+
+                    sceneView.scene.rootNode.addChildNode(diceNode)
+                }
+                
+                print("touched the plane")
+            } else {
+                print("touched somewere else")
+            }
+            
+        }
+    }
     
     
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
