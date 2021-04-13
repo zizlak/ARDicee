@@ -115,6 +115,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                         result.worldTransform.columns.3.z)
 
                     sceneView.scene.rootNode.addChildNode(diceNode)
+                    
+                    func randomFace() -> CGFloat {
+                        return CGFloat(Float((arc4random_uniform(4) + 1)) * (Float.pi/2)) * 5
+                    }
+                    let randomX = randomFace()
+                    let randomZ = randomFace()
+                    
+                    diceNode.runAction(SCNAction.rotateBy(
+                                        x: randomX,
+                                        y: 0,
+                                        z: randomZ,
+                                        duration: 1))
+                    
                 }
                 
                 print("touched the plane")
