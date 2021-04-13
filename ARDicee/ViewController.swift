@@ -10,8 +10,24 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
+    
+    var diceArray = [SCNNode]()
 
     @IBOutlet var sceneView: ARSCNView!
+    
+    @IBAction func deleteTapped(_ sender: UIBarButtonItem) {
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                dice.removeFromParentNode()
+            }
+        }
+        
+    }
+    
+    @IBAction func refreshTapped(_ sender: UIBarButtonItem) {
+        rollAll()
+        
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -106,27 +122,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                 let result = results.first!
                 
                 let diceScene = SCNScene(named: "art.scnassets/diceCollada.dae")!
-                sceneView.scene = diceScene
+             //   sceneView.scene = diceScene
 
                 if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
+                    
+                    
                     diceNode.position = SCNVector3(
                         result.worldTransform.columns.3.x,
-                        result.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
+                        result.worldTransform.columns.3.y,
+                        //  + diceNode.boundingSphere.radius
                         result.worldTransform.columns.3.z)
+                    
+                    self.diceArray.append(diceNode)
+                    
 
                     sceneView.scene.rootNode.addChildNode(diceNode)
                     
-                    func randomFace() -> CGFloat {
-                        return CGFloat(Float((arc4random_uniform(4) + 1)) * (Float.pi/2)) * 5
-                    }
-                    let randomX = randomFace()
-                    let randomZ = randomFace()
+                    roll(dice: diceNode)
                     
-                    diceNode.runAction(SCNAction.rotateBy(
-                                        x: randomX,
-                                        y: 0,
-                                        z: randomZ,
-                                        duration: 1))
+
                     
                 }
                 
@@ -136,6 +150,32 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             }
             
         }
+    }
+    
+    private func rollAll() {
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                roll(dice: dice)
+            }
+        }
+    }
+    
+    private func roll(dice: SCNNode) {
+        func randomFace() -> CGFloat {
+            return CGFloat(Float((arc4random_uniform(4) + 1)) * (Float.pi/2)) * 5
+        }
+        let randomX = randomFace()
+        let randomZ = randomFace()
+        
+        dice.runAction(SCNAction.rotateBy(
+                            x: randomX,
+                            y: 0,
+                            z: randomZ,
+                            duration: 1))
+    }
+    
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        rollAll()
     }
     
     
